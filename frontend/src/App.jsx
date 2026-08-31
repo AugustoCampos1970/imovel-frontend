@@ -1,3 +1,7 @@
+/**
+ * Catálogo de Imóveis, Vitrine, Grid de Cards, Modal de Detalhes e Favoritos
+ * @author Janayna Nascimento <janayna.nasc2022@gmail.com>
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Anunciar from "./Anunciar.jsx";
