@@ -84,16 +84,27 @@ d980779 ci: ajuste no workflow
 
 ---
 
-## 4. Implementação das tarefas da 1ª sprint (Trello)
+## 4. Equipe de Desenvolvimento e Atribuição de Módulos
 
-| # | Tarefa | Situação |
+| Integrante | E-mail | Módulo de Atuação |
 |---|---|---|
-| 1 | Configurar ambiente de desenvolvimento (Vite + React + Tailwind) | ✅ Concluída |
-| 2 | Criar layout base: header/navbar, hero, footer e responsividade | ✅ Concluída (`App.jsx`) |
-| 3 | Implementar busca e filtros de imóveis (tipo, localização, preço, quartos; tabs Comprar/Alugar/Lançamentos) | ✅ Concluída (`App.jsx`) |
-| 4 | Criar formulário "Anunciar imóvel" | ✅ Concluída (`Anunciar.jsx`) |
-| 5 | Implementar login/cadastro de usuário (favoritos personalizados) | ✅ Concluída (`Auth.jsx`) |
-| 6 | Deploy do frontend no GitHub Pages | ✅ Concluída |
+| **Janayna Nascimento** | `janayna.nasc2022@gmail.com` | Vitrine, Catálogo, Grid de Imóveis, Modal de Detalhes e Favoritos |
+| **F. Silva** | `fsilvasmbg@gmail.com` | Módulo de Anúncio e Cadastro de Imóveis |
+| **Mara Rakel** | `mara.rakel2016@outlook.com` | Autenticação, Login, Cadastro e Gestão de Sessão |
+| **Augusto Campos** | `1977campos7@gmail.com` | Estrutura Base, Design System, Integração e Backend |
+
+---
+
+## 5. Implementação das tarefas da 1ª sprint (Trello)
+
+| # | Tarefa | Responsável | Situação |
+|---|---|---|---|
+| 1 | Configurar ambiente de desenvolvimento (Vite + React + Tailwind) | Augusto Campos (`1977campos7@gmail.com`) | ✅ Concluída |
+| 2 | Criar layout base: header/navbar, hero, footer e responsividade | Augusto Campos (`1977campos7@gmail.com`) | ✅ Concluída (`App.jsx`, `index.css`) |
+| 3 | Implementar vitrine, busca e filtros de imóveis (cards, modal de detalhes, favoritos) | Janayna Nascimento (`janayna.nasc2022@gmail.com`) | ✅ Concluída (`App.jsx`) |
+| 4 | Criar formulário e tela "Anunciar imóvel" | F. Silva (`fsilvasmbg@gmail.com`) | ✅ Concluída (`Anunciar.jsx`) |
+| 5 | Implementar login/cadastro de usuário (autenticação e favoritos) | Mara Rakel (`mara.rakel2016@outlook.com`) | ✅ Concluída (`Auth.jsx`) |
+| 6 | Deploy do frontend no GitHub Pages e integração remota | Equipe / Augusto Campos | ✅ Concluída |
 
 ---
 
