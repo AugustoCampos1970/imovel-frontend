@@ -1,3 +1,7 @@
+/**
+ * Módulo de Anúncio e Cadastro de Imóveis
+ * @author F. Silva <fsilvasmbg@gmail.com>
+ */
 import React, { useState } from "react";
 import axios from "axios";
 import {
