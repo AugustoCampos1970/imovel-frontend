@@ -1,3 +1,7 @@
+/**
+ * Módulo de Autenticação e Gestão de Usuários (Login / Cadastro)
+ * @author Mara Rakel <mara.rakel2016@outlook.com>
+ */
 import React, { useState } from "react";
 import axios from "axios";
 import {
