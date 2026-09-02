@@ -1,6 +1,9 @@
 /**
  * Catálogo de Imóveis, Vitrine, Grid de Cards, Modal de Detalhes e Favoritos
  * @author Janayna Nascimento <janayna.nasc2022@gmail.com>
+ * @author Augusto Campos <1977campos7@gmail.com>
+ * @author F. Silva <fsilvasmbg@gmail.com>
+ * @author Mara Rakel <mara.rakel2016@outlook.com>
  */
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
@@ -26,6 +29,8 @@ import {
   ChevronLeft,
   Calendar,
   DollarSign,
+  CircleDot,
+  LogOut,
 } from "lucide-react";
 
 // ============================================================================
@@ -36,8 +41,20 @@ const API_URL = "/api";
 // ============================================================================
 // Componente: Header / Navbar
 // ============================================================================
-function Header({ onAnunciar, onAuth, user, onLogout }) {
+function Header({ onAnunciar, onAuth, user, onLogout, onShowFavorites, favoritesCount, view }) {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    const confirmed = window.confirm("Tem certeza que deseja sair da sua conta?");
+    if (confirmed) {
+      onLogout();
+    }
+  };
+
+  const handleFavoritesClick = () => {
+    setMenuOpen(false);
+    if (onShowFavorites) onShowFavorites();
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -55,22 +72,50 @@ function Header({ onAnunciar, onAuth, user, onLogout }) {
 
           {/* Navegação Desktop */}
           <nav className="hidden md:flex items-center gap-4">
-            <button className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
-              <Heart className="w-5 h-5" />
+            <button
+              onClick={handleFavoritesClick}
+              className={`flex items-center gap-2 px-4 py-2 transition-colors rounded-lg hover:bg-blue-50 ${
+                view === "favorites"
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  view === "favorites" ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
               Favoritos
+              {favoritesCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
+                  {favoritesCount}
+                </span>
+              )}
             </button>
             {user ? (
               <>
-                <span className="flex items-center gap-2 px-4 py-2 text-gray-700">
+                <div
+                  className="relative group flex items-center gap-2 px-4 py-2 text-gray-700"
+                  title={user.name}
+                >
                   <span className="bg-blue-100 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
-                  {user.name.split(" ")[0]}
-                </span>
+                  <span>{user.name.split(" ")[0]}</span>
+                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full">
+                    <CircleDot className="w-3 h-3" />
+                    Sessão ativa
+                  </span>
+                  {/* Tooltip com nome completo */}
+                  <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-gray-900 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    {user.name}
+                  </span>
+                </div>
                 <button
-                  onClick={onLogout}
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
                 >
+                  <LogOut className="w-4 h-4" />
                   Sair
                 </button>
               </>
@@ -103,25 +148,49 @@ function Header({ onAnunciar, onAuth, user, onLogout }) {
         {/* Menu Mobile */}
         {menuOpen && (
           <nav className="md:hidden pb-4 space-y-2">
-            <button className="flex items-center gap-2 w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg">
-              <Heart className="w-5 h-5" />
-              Favoritos
+            <button
+              onClick={handleFavoritesClick}
+              className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg ${
+                view === "favorites"
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-700 hover:bg-blue-50"
+              }`}
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  view === "favorites" ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
+              <span>Favoritos</span>
+              {favoritesCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
+                  {favoritesCount}
+                </span>
+              )}
             </button>
             {user ? (
               <>
-                <div className="flex items-center gap-2 w-full px-4 py-2 text-gray-700">
+                <div
+                  className="flex items-center gap-2 w-full px-4 py-2 text-gray-700"
+                  title={user.name}
+                >
                   <span className="bg-blue-100 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                   <span>{user.name.split(" ")[0]}</span>
+                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full">
+                    <CircleDot className="w-3 h-3" />
+                    Sessão ativa
+                  </span>
                 </div>
                 <button
                   onClick={() => {
                     setMenuOpen(false);
-                    onLogout();
+                    handleLogout();
                   }}
-                  className="w-full px-4 py-2 text-left text-gray-700 hover:bg-blue-50 rounded-lg"
+                  className="w-full px-4 py-2 text-left text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg flex items-center gap-2"
                 >
+                  <LogOut className="w-4 h-4" />
                   Sair
                 </button>
               </>
@@ -198,7 +267,7 @@ function Hero() {
 // ============================================================================
 // Componente: Filtro de Busca Dinâmico
 // ============================================================================
-function SearchFilters({ onSearchChange, purpose, setPurpose }) {
+function SearchFilters({ onSearchChange, purpose, setPurpose, sortBy, setSortBy, hideSort = false }) {
   const [filters, setFilters] = useState({
     query: "",
     property_type: "todos",
@@ -246,7 +315,9 @@ function SearchFilters({ onSearchChange, purpose, setPurpose }) {
         {/* Formulário de Filtros */}
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
+          className={`grid grid-cols-1 md:grid-cols-2 ${
+            hideSort ? "lg:grid-cols-5" : "lg:grid-cols-6"
+          } gap-4`}
         >
           <div className="lg:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -333,6 +404,25 @@ function SearchFilters({ onSearchChange, purpose, setPurpose }) {
               <option value="4">4+</option>
             </select>
           </div>
+
+          {!hideSort && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ordenar por
+              </label>
+              <select
+                name="sortBy"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="recent">Mais recentes</option>
+                <option value="price_asc">Menor preço</option>
+                <option value="price_desc">Maior preço</option>
+                <option value="area_desc">Maior área</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex items-end">
             <button
@@ -701,6 +791,7 @@ function App() {
   const [filters, setFilters] = useState({});
   const [view, setView] = useState("home");
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [sortBy, setSortBy] = useState("recent");
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("imovefacil_user") || "null");
@@ -789,6 +880,38 @@ function App() {
     });
   };
 
+  // Navega para a tela de favoritos
+  const handleShowFavorites = () => {
+    setView("favorites");
+  };
+
+  // Aplica a ordenação atual sobre a lista de imóveis
+  const sortProperties = useCallback((list) => {
+    const arr = [...list];
+    switch (sortBy) {
+      case "price_asc":
+        return arr.sort((a, b) => (a.price || 0) - (b.price || 0));
+      case "price_desc":
+        return arr.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case "area_desc":
+        return arr.sort((a, b) => (b.area_sqm || 0) - (a.area_sqm || 0));
+      case "recent":
+      default:
+        return arr.sort((a, b) => {
+          const da = new Date(a.created_at || 0).getTime();
+          const db = new Date(b.created_at || 0).getTime();
+          return db - da;
+        });
+    }
+  }, [sortBy]);
+
+  // Lista derivada conforme a view atual
+  const baseList = view === "favorites"
+    ? properties.filter((p) => p.is_favorite)
+    : properties;
+  const displayedProperties = sortProperties(baseList);
+  const favoritesCount = properties.filter((p) => p.is_favorite).length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {view === "anunciar" ? (
@@ -814,19 +937,68 @@ function App() {
               setUser(null);
               localStorage.removeItem("imovefacil_user");
             }}
+            onShowFavorites={handleShowFavorites}
+            favoritesCount={favoritesCount}
+            view={view}
           />
-          <Hero />
-          <SearchFilters
-            onSearchChange={handleSearch}
-            purpose={purpose}
-            setPurpose={setPurpose}
-          />
+          {view === "home" && <Hero />}
+          {view === "home" && (
+            <SearchFilters
+              onSearchChange={handleSearch}
+              purpose={purpose}
+              setPurpose={setPurpose}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+            />
+          )}
+          {view === "favorites" && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+              <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <Heart className="w-6 h-6 fill-red-500 text-red-500" />
+                    Meus Favoritos
+                  </h1>
+                  <p className="text-gray-500 mt-1">
+                    {favoritesCount}{" "}
+                    {favoritesCount === 1 ? "imóvel favoritado" : "imóveis favoritados"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="recent">Mais recentes</option>
+                    <option value="price_asc">Menor preço</option>
+                    <option value="price_desc">Maior preço</option>
+                    <option value="area_desc">Maior área</option>
+                  </select>
+                  <button
+                    onClick={() => setView("home")}
+                    className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Listagem de Imóveis */}
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                {loading ? "Carregando..." : `${properties.length} imóveis encontrados`}
+                {loading
+                  ? "Carregando..."
+                  : view === "favorites"
+                    ? `${displayedProperties.length} ${
+                        displayedProperties.length === 1
+                          ? "favorito"
+                          : "favoritos"
+                      }`
+                    : `${displayedProperties.length} imóveis encontrados`}
               </h2>
             </div>
 
@@ -849,7 +1021,7 @@ function App() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property) => (
+                {displayedProperties.map((property) => (
                   <PropertyCard
                     key={property.id}
                     property={property}
@@ -860,16 +1032,18 @@ function App() {
               </div>
             )}
 
-            {!loading && !error && properties.length === 0 && (
+            {!loading && !error && displayedProperties.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">
-                  Nenhum imóvel encontrado com os filtros selecionados.
+                  {view === "favorites"
+                    ? "Você ainda não favoritou nenhum imóvel. Volte à home e clique no coração para adicionar."
+                    : "Nenhum imóvel encontrado com os filtros selecionados."}
                 </p>
               </div>
             )}
           </section>
 
-          <CtaBanner />
+          {view === "home" && <CtaBanner />}
           <Footer />
 
           <PropertyDetailsModal

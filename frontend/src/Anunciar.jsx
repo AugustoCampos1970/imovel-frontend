@@ -13,6 +13,17 @@ import {
   Send,
 } from "lucide-react";
 
+// Skeleton de loading do botão de submit, com 3 barras animadas
+function SubmitSkeleton() {
+  return (
+    <span className="flex items-center gap-1.5" aria-hidden="true">
+      <span className="block w-1.5 h-4 bg-white/70 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
+      <span className="block w-1.5 h-4 bg-white/70 rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
+      <span className="block w-1.5 h-4 bg-white/70 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
+    </span>
+  );
+}
+
 const API_URL = "/api";
 
 const PROPERTY_TYPES = [
@@ -408,12 +419,19 @@ function Anunciar({ onBack, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`relative flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed ${
+                loading
+                  ? "opacity-90 bg-blue-500"
+                  : "hover:bg-blue-700"
+              }`}
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Publicando...
+                  <SubmitSkeleton />
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Enviando...
+                  </span>
                 </>
               ) : (
                 <>
@@ -421,11 +439,21 @@ function Anunciar({ onBack, onCreated }) {
                   Publicar anúncio
                 </>
               )}
+              {loading && (
+                <span
+                  className="absolute left-0 bottom-0 h-1 bg-white/80 rounded-b-lg animate-pulse"
+                  style={{
+                    width: "100%",
+                    animation: "indeterminate 1.4s ease-in-out infinite",
+                  }}
+                />
+              )}
             </button>
             <button
               type="button"
               onClick={onBack}
-              className="px-6 py-3 rounded-lg font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors"
+              disabled={loading}
+              className="px-6 py-3 rounded-lg font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
