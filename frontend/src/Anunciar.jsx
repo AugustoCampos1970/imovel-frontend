@@ -37,6 +37,17 @@ const STATES = [
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80";
 
+const REQUIRED_FIELDS = [
+  { name: "title", label: "Título do anúncio" },
+  { name: "description", label: "Descrição" },
+  { name: "property_type", label: "Tipo de imóvel" },
+  { name: "purpose", label: "Finalidade" },
+  { name: "price", label: "Preço" },
+  { name: "location", label: "Endereço / Localização" },
+  { name: "city", label: "Cidade" },
+  { name: "state", label: "UF" },
+];
+
 function Field({ label, required = false, children }) {
   return (
     <div>
@@ -72,6 +83,30 @@ function Anunciar({ onBack, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const validateForm = () => {
+    const errors = {};
+    REQUIRED_FIELDS.forEach(({ name, label }) => {
+      const value = form[name];
+      const isEmpty =
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "");
+      if (isEmpty) {
+        errors[name] = `O campo "${label}" é obrigatório.`;
+      }
+    });
+
+    if (!errors.price) {
+      const priceNumber = parseFloat(form.price);
+      if (Number.isNaN(priceNumber) || priceNumber <= 0) {
+        errors.price = "Informe um preço válido maior que zero.";
+      }
+    }
+
+    return errors;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -83,9 +118,17 @@ function Anunciar({ onBack, onCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
     setSuccess(null);
+
+    const errors = validateForm();
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setError("Preencha todos os campos obrigatórios antes de publicar.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const payload = {

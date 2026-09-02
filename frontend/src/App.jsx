@@ -23,6 +23,9 @@ import {
   Twitter,
   Menu,
   X,
+  ChevronLeft,
+  Calendar,
+  DollarSign,
 } from "lucide-react";
 
 // ============================================================================
@@ -197,6 +200,7 @@ function Hero() {
 // ============================================================================
 function SearchFilters({ onSearchChange, purpose, setPurpose }) {
   const [filters, setFilters] = useState({
+    query: "",
     property_type: "todos",
     location: "",
     max_price: "",
@@ -244,6 +248,23 @@ function SearchFilters({ onSearchChange, purpose, setPurpose }) {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
         >
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Palavra-chave
+            </label>
+            <div className="relative">
+              <SearchIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                name="query"
+                value={filters.query}
+                onChange={handleChange}
+                placeholder="Ex: piscina, varanda, mobiliado..."
+                className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tipo de Imóvel
@@ -331,7 +352,7 @@ function SearchFilters({ onSearchChange, purpose, setPurpose }) {
 // ============================================================================
 // Componente: Card de Imóvel
 // ============================================================================
-function PropertyCard({ property, onToggleFavorite }) {
+function PropertyCard({ property, onToggleFavorite, onViewDetails }) {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -409,9 +430,153 @@ function PropertyCard({ property, onToggleFavorite }) {
               {formatPrice(property.price)}
             </div>
           </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button
+            onClick={() => onViewDetails && onViewDetails(property)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
             Ver detalhes
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Componente: Modal de Detalhes do Imóvel
+// ============================================================================
+function PropertyDetailsModal({ property, onClose, onToggleFavorite }) {
+  if (!property) return null;
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Cabeçalho com imagem */}
+        <div className="relative h-64 sm:h-80">
+          <img
+            src={property.image_url}
+            alt={property.title}
+            className="w-full h-full object-cover rounded-t-2xl"
+          />
+          <button
+            onClick={onClose}
+            className="absolute top-4 left-4 bg-white/90 hover:bg-white rounded-full p-2 transition-colors"
+            aria-label="Voltar"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          <button
+            onClick={() => onToggleFavorite(property)}
+            className="absolute top-4 right-4 bg-white/90 hover:bg-white rounded-full p-2 transition-colors"
+            aria-label="Favoritar"
+          >
+            <Heart
+              className={`w-5 h-5 ${
+                property.is_favorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-600"
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="p-6 sm:p-8">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            {property.featured && (
+              <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                Destaque
+              </span>
+            )}
+            <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
+              {property.property_type}
+            </span>
+            <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
+              {property.purpose === "alugar" ? "Aluguel" : "Venda"}
+            </span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            {property.title}
+          </h2>
+          <div className="flex items-center gap-1 text-gray-500 mb-6">
+            <MapPin className="w-4 h-4" />
+            {property.location}
+          </div>
+
+          {/* Preço */}
+          <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-6">
+            <DollarSign className="w-5 h-5 text-blue-600" />
+            <div>
+              <div className="text-xs text-gray-500">
+                {property.purpose === "alugar" ? "Aluguel" : "Preço de venda"}
+              </div>
+              <div className="text-2xl font-bold text-blue-600">
+                {formatPrice(property.price)}
+              </div>
+            </div>
+          </div>
+
+          {/* Atributos */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-3">
+              <BedDouble className="w-5 h-5 text-blue-600 mb-1" />
+              <span className="text-sm text-gray-500">Quartos</span>
+              <span className="font-semibold text-gray-900">{property.bedrooms}</span>
+            </div>
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-3">
+              <Bath className="w-5 h-5 text-blue-600 mb-1" />
+              <span className="text-sm text-gray-500">Banheiros</span>
+              <span className="font-semibold text-gray-900">{property.bathrooms}</span>
+            </div>
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-3">
+              <Ruler className="w-5 h-5 text-blue-600 mb-1" />
+              <span className="text-sm text-gray-500">Área</span>
+              <span className="font-semibold text-gray-900">{property.area_sqm} m²</span>
+            </div>
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-3">
+              <Calendar className="w-5 h-5 text-blue-600 mb-1" />
+              <span className="text-sm text-gray-500">Publicado</span>
+              <span className="font-semibold text-gray-900">Hoje</span>
+            </div>
+          </div>
+
+          {/* Descrição */}
+          {property.description && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Descrição
+              </h3>
+              <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                {property.description}
+              </p>
+            </div>
+          )}
+
+          {/* Ações */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
+            <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+              <Phone className="w-5 h-5" />
+              Entrar em contato
+            </button>
+            <button className="px-6 py-3 rounded-lg font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors">
+              Agendar visita
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -535,6 +700,7 @@ function App() {
   const [purpose, setPurpose] = useState("comprar");
   const [filters, setFilters] = useState({});
   const [view, setView] = useState("home");
+  const [selectedProperty, setSelectedProperty] = useState(null);
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("imovefacil_user") || "null");
@@ -564,6 +730,9 @@ function App() {
       }
       if (searchFilters.bedrooms) {
         params.bedrooms = searchFilters.bedrooms;
+      }
+      if (searchFilters.query) {
+        params.query = searchFilters.query;
       }
 
       const response = await axios.get(`${API_URL}/properties`, { params });
@@ -604,6 +773,20 @@ function App() {
   const handleSearch = (newFilters) => {
     setFilters(newFilters);
     fetchProperties(newFilters);
+  };
+
+  // Fecha o modal de detalhes
+  const handleCloseModal = () => {
+    setSelectedProperty(null);
+  };
+
+  // Alterna favorito mantendo o modal sincronizado
+  const handleToggleFavoriteWithModal = async (property) => {
+    await handleToggleFavorite(property);
+    setSelectedProperty((prev) => {
+      if (!prev || prev.id !== property.id) return prev;
+      return { ...prev, is_favorite: !property.is_favorite };
+    });
   };
 
   return (
@@ -671,6 +854,7 @@ function App() {
                     key={property.id}
                     property={property}
                     onToggleFavorite={handleToggleFavorite}
+                    onViewDetails={setSelectedProperty}
                   />
                 ))}
               </div>
@@ -687,6 +871,12 @@ function App() {
 
           <CtaBanner />
           <Footer />
+
+          <PropertyDetailsModal
+            property={selectedProperty}
+            onClose={handleCloseModal}
+            onToggleFavorite={handleToggleFavoriteWithModal}
+          />
         </>
       )}
     </div>
