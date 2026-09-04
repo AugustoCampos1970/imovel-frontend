@@ -31,6 +31,7 @@ import {
   DollarSign,
   CircleDot,
   LogOut,
+  ArrowUp,
 } from "lucide-react";
 
 // ============================================================================
@@ -799,6 +800,13 @@ function App() {
       return null;
     }
   });
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Função para buscar imóveis da API
   const fetchProperties = useCallback(async (searchFilters = {}) => {
@@ -1045,6 +1053,20 @@ function App() {
 
           {view === "home" && <CtaBanner />}
           <Footer />
+
+          {showScrollTop && (
+            <button
+              type="button"
+              onClick={() =>
+                window.scrollTo({ top: 0, behavior: "smooth" })
+              }
+              aria-label="Voltar ao topo"
+              title="Voltar ao topo"
+              className="fixed bottom-6 right-6 z-40 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+            >
+              <ArrowUp className="w-5 h-5" />
+            </button>
+          )}
 
           <PropertyDetailsModal
             property={selectedProperty}
