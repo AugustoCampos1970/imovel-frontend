@@ -411,17 +411,32 @@ function SearchFilters({ onSearchChange, purpose, setPurpose, sortBy, setSortBy,
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ordenar por
               </label>
-              <select
-                name="sortBy"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="recent">Mais recentes</option>
-                <option value="price_asc">Menor preço</option>
-                <option value="price_desc">Maior preço</option>
-                <option value="area_desc">Maior área</option>
-              </select>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Ordenar por">
+                {[
+                  { value: "recent", label: "Mais recentes" },
+                  { value: "price_asc", label: "Menor preço" },
+                  { value: "price_desc", label: "Maior preço" },
+                  { value: "area_desc", label: "Maior área" },
+                ].map((opt) => {
+                  const active = sortBy === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => setSortBy(opt.value)}
+                      className={`px-3 py-2 rounded-lg text-sm border transition-colors ${
+                        active
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
