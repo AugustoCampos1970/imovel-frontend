@@ -24,7 +24,7 @@ function SubmitSkeleton() {
   );
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://imovel-backend1-p6fo.onrender.com";
 
 const PROPERTY_TYPES = [
   { value: "Casa", label: "Casa" },
