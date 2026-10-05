@@ -36,8 +36,10 @@ import {
 
 // ============================================================================
 // Configuração da API
+// dev local: /api → proxy do Vite → localhost:8000
+// produção: VITE_API_URL no build (ex.: https://imovel-backend-xxx.onrender.com)
 // ============================================================================
-const API_URL = "/api";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 // ============================================================================
 // Componente: Header / Navbar

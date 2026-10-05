@@ -16,7 +16,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const API_URL = "/api";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 const inputClass =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500";
