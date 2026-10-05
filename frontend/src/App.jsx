@@ -39,7 +39,10 @@ import {
 // dev local: /api → proxy do Vite → localhost:8000
 // produção: VITE_API_URL no build (ex.: https://imovel-backend-xxx.onrender.com)
 // ============================================================================
-const API_URL = import.meta.env.VITE_API_URL || "https://imovel-backend1-p6fo.onrender.com/api";
+const rawApi = import.meta.env.VITE_API_URL || "https://imovel-backend1-p6fo.onrender.com";
+const API_URL = rawApi.replace(/\/+$/, "").endsWith("/api")
+  ? rawApi.replace(/\/+$/, "")
+  : `${rawApi.replace(/\/+$/, "")}/api`;
 
 // ============================================================================
 // Componente: Header / Navbar
