@@ -1,0 +1,104 @@
+name: validar-autores
+
+# Pipeline de CI/CD que valida se todos os commits enviados (push/PR)
+# foram feitos exclusivamente pelos e-mails de colaboradores autorizados.
+# Qualquer commit com outro e-mail (ex.: peixeweb@gmail.com) rejeita o run.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validar-autores:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validar autores dos commits
+        shell: bash
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -uo pipefail
+
+          ALLOWED_EMAILS=(
+            "janayna.nasc2022@gmail.com"
+            "fsilvasmbg@gmail.com"
+            "mara.rakel2016@outlook.com"
+            "1977campos7@gmail.com"
+          )
+
+          is_authorized() {
+            local candidate email
+            candidate=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+            for email in "${ALLOWED_EMAILS[@]}"; do
+              if [ "$candidate" = "$email" ]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          ZERO="0000000000000000000000000000000000000000"
+          RANGE=""
+
+          if [ -n "${PR_BASE:-}" ] && [ "$PR_BASE" != "$ZERO" ]; then
+            RANGE="${PR_BASE}..${PR_HEAD}"
+          elif [ -n "${PUSH_BEFORE:-}" ] && [ "$PUSH_BEFORE" != "$ZERO" ]; then
+            RANGE="${PUSH_BEFORE}..${PUSH_AFTER}"
+          else
+            RANGE="HEAD~5..HEAD"
+          fi
+
+          echo "Range validado: $RANGE"
+          COMMITS=$(git rev-list "$RANGE" 2>/dev/null || true)
+
+          if [ -z "$COMMITS" ]; then
+            echo "Nenhum commit novo para validar neste range."
+            exit 0
+          fi
+
+          COUNT=$(printf '%s\n' "$COMMITS" | wc -l | tr -d ' ')
+          echo "Validando $COUNT commit(s)..."
+          FAILURES=0
+
+          for commit in $COMMITS; do
+            subject=$(git log -1 --format='%s' "$commit")
+            author_email=$(git log -1 --format='%ae' "$commit")
+            author_name=$(git log -1 --format='%an' "$commit")
+            if is_authorized "$author_email"; then
+              echo "  [OK]         ${commit:0:7} - ${author_name} <${author_email}>"
+            else
+              echo "  [REJEITADO]  ${commit:0:7} - ${author_name} <${author_email}> — \"${subject}\""
+              FAILURES=$((FAILURES + 1))
+            fi
+          done
+
+          if [ "$FAILURES" -gt 0 ]; then
+            echo ""
+            echo "=========================================================="
+            echo "  ${FAILURES} commit(s) com autor NAO autorizado!"
+            echo ""
+            echo "  E-mails permitidos:"
+            echo "    - janayna.nasc2022@gmail.com"
+            echo "    - fsilvasmbg@gmail.com"
+            echo "    - mara.rakel2016@outlook.com"
+            echo "    - 1977campos7@gmail.com"
+            echo ""
+            echo "  Este push/PR sera REJEITADO pelo CI."
+            echo "=========================================================="
+            exit 1
+          fi
+
+          echo ""
+          echo "Todos os autores sao autorizados. Validacao aprovada."
