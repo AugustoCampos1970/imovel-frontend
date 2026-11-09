@@ -32,6 +32,8 @@ import {
   CircleDot,
   LogOut,
   ArrowUp,
+  RotateCcw,
+  AlertCircle,
 } from "lucide-react";
 
 // ============================================================================
@@ -879,6 +881,12 @@ function App() {
     fetchProperties(newFilters);
   };
 
+  // Função para limpar os filtros e recarregar todos os imóveis
+  const handleClearFilters = () => {
+    setFilters({});
+    fetchProperties({ purpose });
+  };
+
   // Fecha o modal de detalhes
   const handleCloseModal = () => {
     setSelectedProperty(null);
@@ -1046,12 +1054,29 @@ function App() {
             )}
 
             {!loading && !error && displayedProperties.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center my-8 max-w-xl mx-auto border border-gray-100">
+                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {view === "favorites"
+                    ? "Nenhum favorito encontrado"
+                    : "Nenhum imóvel encontrado"}
+                </h3>
+                <p className="text-gray-500 text-sm mb-6 leading-relaxed">
                   {view === "favorites"
                     ? "Você ainda não favoritou nenhum imóvel. Volte à home e clique no coração para adicionar."
-                    : "Nenhum imóvel encontrado com os filtros selecionados."}
+                    : "Não encontramos nenhum imóvel correspondente aos filtros e critérios selecionados. Tente ajustar os parâmetros ou limpar os filtros."}
                 </p>
+                {view !== "favorites" && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-xl transition-colors shadow-sm"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Limpar Filtros
+                  </button>
+                )}
               </div>
             )}
           </section>
