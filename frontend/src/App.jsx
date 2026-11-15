@@ -6,10 +6,11 @@
  * @author Mara Rakel <mara.rakel2016@outlook.com>
  */
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import api, { getApiErrorMessage } from "./api.js";
 import Anunciar from "./Anunciar.jsx";
 import Auth from "./Auth.jsx";
 import Pagination from "./components/Pagination.jsx";
+import LoadingOverlay from "./components/LoadingOverlay.jsx";
 import {
   Home,
   Heart,
@@ -847,7 +848,7 @@ function App() {
         params.query = searchFilters.query;
       }
 
-      const response = await axios.get(`${API_URL}/properties`, { params });
+      const response = await api.get("/properties", { params });
       
       // Suporta tanto resposta com paginação ({ items, total }) quanto lista simples
       if (response.data && Array.isArray(response.data.items)) {
@@ -862,7 +863,7 @@ function App() {
       }
     } catch (err) {
       console.error("Erro ao buscar imóveis:", err);
-      setError("Não foi possível carregar os imóveis. Verifique se o backend está rodando.");
+      setError(getApiErrorMessage(err, "Não foi possível carregar os imóveis. Verifique se o backend está rodando."));
     } finally {
       setLoading(false);
     }
@@ -877,7 +878,7 @@ function App() {
   const handleToggleFavorite = async (property) => {
     const newFavoriteStatus = !property.is_favorite;
     try {
-      await axios.post(`${API_URL}/favorites`, {
+      await api.post("/favorites", {
         property_id: property.id,
         is_favorite: newFavoriteStatus,
       });
@@ -1132,6 +1133,8 @@ function App() {
             onClose={handleCloseModal}
             onToggleFavorite={handleToggleFavoriteWithModal}
           />
+
+          <LoadingOverlay loading={loading} message="Carregando imóveis..." />
         </>
       )}
     </div>
