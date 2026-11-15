@@ -11,6 +11,7 @@ import Anunciar from "./Anunciar.jsx";
 import Auth from "./Auth.jsx";
 import Pagination from "./components/Pagination.jsx";
 import LoadingOverlay from "./components/LoadingOverlay.jsx";
+import FilterBar from "./components/FilterBar.jsx";
 import {
   Home,
   Heart,
@@ -274,184 +275,7 @@ function Hero() {
   );
 }
 
-// ============================================================================
-// Componente: Filtro de Busca Dinâmico
-// ============================================================================
-function SearchFilters({ onSearchChange, purpose, setPurpose, sortBy, setSortBy, hideSort = false }) {
-  const [filters, setFilters] = useState({
-    query: "",
-    property_type: "todos",
-    location: "",
-    max_price: "",
-    bedrooms: "",
-  });
 
-  const purposes = [
-    { id: "comprar", label: "Comprar" },
-    { id: "alugar", label: "Alugar" },
-    { id: "lancamento", label: "Lançamentos" },
-  ];
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearchChange({ ...filters, purpose });
-  };
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-      <div className="bg-white rounded-2xl shadow-xl p-6">
-        {/* Tabs de Finalidade */}
-        <div className="flex gap-2 mb-6">
-          {purposes.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setPurpose(p.id)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
-                purpose === p.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Formulário de Filtros */}
-        <form
-          onSubmit={handleSubmit}
-          className={`grid grid-cols-1 md:grid-cols-2 ${
-            hideSort ? "lg:grid-cols-5" : "lg:grid-cols-6"
-          } gap-4`}
-        >
-          <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Palavra-chave
-            </label>
-            <div className="relative">
-              <SearchIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                name="query"
-                value={filters.query}
-                onChange={handleChange}
-                placeholder="Ex: piscina, varanda, mobiliado..."
-                className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de Imóvel
-            </label>
-            <select
-              name="property_type"
-              value={filters.property_type}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="todos">Todos</option>
-              <option value="Casa">Casa</option>
-              <option value="Apartamento">Apartamento</option>
-              <option value="Cobertura">Cobertura</option>
-              <option value="Terreno">Terreno</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Localização
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={filters.location}
-              onChange={handleChange}
-              placeholder="Cidade ou bairro"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Preço Máximo
-            </label>
-            <select
-              name="max_price"
-              value={filters.max_price}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Qualquer preço</option>
-              <option value="500000">R$ 500.000</option>
-              <option value="1000000">R$ 1.000.000</option>
-              <option value="1500000">R$ 1.500.000</option>
-              <option value="2000000">R$ 2.000.000</option>
-              <option value="3000000">R$ 3.000.000+</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Quartos
-            </label>
-            <select
-              name="bedrooms"
-              value={filters.bedrooms}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Qualquer</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-              <option value="4">4+</option>
-            </select>
-          </div>
-
-          {!hideSort && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ordenar por
-              </label>
-              <select
-                name="sortBy"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="recent">Mais recentes</option>
-                <option value="price_asc">Menor preço</option>
-                <option value="price_desc">Maior preço</option>
-                <option value="area_desc">Maior área</option>
-              </select>
-            </div>
-          )}
-
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <SearchIcon className="w-5 h-5" />
-              Buscar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// Componente: Card de Imóvel
-// ============================================================================
 function PropertyCard({ property, onToggleFavorite, onViewDetails }) {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -980,16 +804,16 @@ function App() {
             favoritesCount={favoritesCount}
             view={view}
           />
-          {view === "home" && <Hero />}
-          {view === "home" && (
-            <SearchFilters
-              onSearchChange={handleSearch}
-              purpose={purpose}
-              setPurpose={setPurpose}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-            />
-          )}
+           {view === "home" && <Hero />}
+           {view === "home" && (
+             <FilterBar
+               onSearchChange={handleSearch}
+               purpose={purpose}
+               setPurpose={setPurpose}
+               sortBy={sortBy}
+               setSortBy={setSortBy}
+             />
+           )}
           {view === "favorites" && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
               <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-between">
