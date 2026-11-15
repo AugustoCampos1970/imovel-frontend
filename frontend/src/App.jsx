@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Anunciar from "./Anunciar.jsx";
 import Auth from "./Auth.jsx";
+import Pagination from "./components/Pagination.jsx";
 import {
   Home,
   Heart,
@@ -807,7 +808,9 @@ function App() {
       return null;
     }
   });
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(9);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -816,11 +819,14 @@ function App() {
   }, []);
 
   // Função para buscar imóveis da API
-  const fetchProperties = useCallback(async (searchFilters = {}) => {
+  const fetchProperties = useCallback(async (searchFilters = {}, currentOffset = 0, currentLimit = 9) => {
     setLoading(true);
     setError(null);
     try {
-      const params = {};
+      const params = {
+        limit: currentLimit,
+        offset: currentOffset,
+      };
 
       if (searchFilters.property_type && searchFilters.property_type !== "todos") {
         params.property_type = searchFilters.property_type;
@@ -842,7 +848,18 @@ function App() {
       }
 
       const response = await axios.get(`${API_URL}/properties`, { params });
-      setProperties(response.data);
+      
+      // Suporta tanto resposta com paginação ({ items, total }) quanto lista simples
+      if (response.data && Array.isArray(response.data.items)) {
+        setProperties(response.data.items);
+        setTotal(response.data.total ?? response.data.items.length);
+      } else if (Array.isArray(response.data)) {
+        setProperties(response.data);
+        setTotal(response.data.length);
+      } else {
+        setProperties([]);
+        setTotal(0);
+      }
     } catch (err) {
       console.error("Erro ao buscar imóveis:", err);
       setError("Não foi possível carregar os imóveis. Verifique se o backend está rodando.");
@@ -851,10 +868,10 @@ function App() {
     }
   }, []);
 
-  // Carrega os imóveis ao montar o componente
+  // Carrega os imóveis ao montar o componente ou mudar purpose/offset
   useEffect(() => {
-    fetchProperties({ purpose });
-  }, [fetchProperties, purpose]);
+    fetchProperties({ ...filters, purpose }, offset, limit);
+  }, [fetchProperties, purpose, offset, limit, filters]);
 
   // Função para alternar favorito
   const handleToggleFavorite = async (property) => {
@@ -1078,6 +1095,18 @@ function App() {
                   </button>
                 )}
               </div>
+            )}
+
+            {view === "home" && !loading && !error && total > limit && (
+              <Pagination
+                offset={offset}
+                limit={limit}
+                total={total}
+                onPageChange={(newOffset) => {
+                  setOffset(newOffset);
+                  window.scrollTo({ top: 400, behavior: "smooth" });
+                }}
+              />
             )}
           </section>
 
